@@ -1,0 +1,140 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Meine Finanzen</title>
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Finanzen"><meta name="theme-color" content="#6d5bf0">
+<style>
+:root{--bg:#f5f3ff;--card:#fff;--text:#1e1b3a;--muted:#6b6890;--line:#e6e2fa;--p:#6d5bf0;--p2:#9b7bff;--in:#16a34a;--out:#e11d48;--soft:#efeafe}
+@media(prefers-color-scheme:dark){:root{--bg:#0f0d1f;--card:#1a1733;--text:#f0eefc;--muted:#a09cc8;--line:#2c2850;--soft:#262250;--in:#4ade80;--out:#fb7185}}
+*{box-sizing:border-box}html{padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;font:16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);padding-bottom:calc(150px + env(safe-area-inset-bottom,0px))}
+main{max-width:640px;margin:0 auto;padding:16px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+h1{font-size:22px;margin:0}h2{font-size:17px;margin:22px 0 10px}.sub{color:var(--muted);font-size:13px}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:12px;padding:10px 14px}
+button.primary{background:var(--p);border-color:var(--p);color:#fff}button.danger{color:var(--out)}
+input,select{font:inherit;width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text)}
+label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px}
+.card{background:var(--card);border-radius:20px;padding:6px 16px;box-shadow:0 2px 10px rgba(80,60,200,.08)}
+.hero{background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border-radius:24px;padding:20px;margin-bottom:12px;box-shadow:0 8px 24px rgba(109,91,240,.3)}
+.hero .big{font-size:38px;font-weight:700;margin:2px 0 14px}.hero .row{display:flex;gap:10px}.hero .box{flex:1;background:rgba(255,255,255,.18);border-radius:14px;padding:10px 12px;font-size:13px}.hero .box b{display:block;font-size:17px}
+.month{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.month b{font-size:17px;text-transform:capitalize}
+.item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}.item:last-child{border:0}
+.ico{width:42px;height:42px;border-radius:14px;background:var(--soft);display:grid;place-items:center;font-size:21px;flex:0 0 auto}
+.grow{flex:1;min-width:0}.amt{font-weight:600;white-space:nowrap}.in{color:var(--in)}.out{color:var(--out)}
+.bar{height:8px;background:var(--soft);border-radius:9px;overflow:hidden;margin-top:6px}.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--p),var(--p2));border-radius:9px}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));z-index:20}
+nav button{flex:1;border:0;background:none;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:2px;align-items:center}nav button span{font-size:22px}nav button.on{color:var(--p);font-weight:600}
+.fab{position:fixed;right:18px;bottom:calc(84px + env(safe-area-inset-bottom,0px));width:58px;height:58px;border-radius:50%;font-size:30px;line-height:1;padding:0;box-shadow:0 6px 18px rgba(109,91,240,.45);z-index:25}
+dialog{border:0;border-radius:22px;width:min(480px,94vw);background:var(--card);color:var(--text);padding:18px}dialog::backdrop{background:rgba(10,8,30,.5)}
+.seg{display:flex;gap:6px;background:var(--soft);padding:4px;border-radius:14px}.seg button{flex:1;border:0;background:none}.seg button.on{background:var(--card);box-shadow:0 1px 4px rgba(0,0,0,.12);font-weight:600}
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.cats button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;font-size:11px}.cats button span{font-size:22px}.cats button.on{border-color:var(--p);background:var(--soft)}
+.emo{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.emo button{padding:6px 10px;font-size:20px}
+.actions{display:flex;gap:8px;margin-top:16px}.actions button{flex:1}
+.row2{display:flex;gap:8px}.row2>*{flex:1}
+.day{font-size:13px;color:var(--muted);margin:16px 0 2px}.warn{background:#fff4d6;color:#5c4400;border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:13px}
+.toast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#1e1b3a;color:#fff;padding:12px 18px;border-radius:14px;z-index:200}
+.hidden{display:none!important}
+</style></head><body>
+<main>
+<div id="warn" class="warn hidden">⚠️ Dein Browser erlaubt hier kein Speichern. Die Daten bleiben nur, solange die Seite offen ist. Sichere sie über ⚙️ Export.</div>
+<header><div><div class="sub">Dein Überblick</div><h1>💸 Meine Finanzen</h1></div><button id="gear" aria-label="Einstellungen">⚙️</button></header>
+
+<div id="monthBar" class="month"><button id="prev" aria-label="Voriger Monat">‹</button><b class="mlabel"></b><button id="next" aria-label="Nächster Monat">›</button></div>
+
+<section id="v-home" class="view">
+<div class="hero"><div class="sub" style="color:#e6e0ff">Übrig diesen Monat</div><div class="big" id="saldo"></div><div class="row"><div class="box">⬆️ Einnahmen<b id="sIn"></b></div><div class="box">⬇️ Ausgaben<b id="sOut"></b></div></div></div>
+<h2>🧩 Wohin das Geld geht</h2><div class="card" id="byCat"></div>
+<h2>🎯 Sparziele</h2><div class="card" id="goalMini"></div>
+<h2>🕒 Zuletzt</h2><div class="card" id="recent"></div>
+</section>
+
+<section id="v-tx" class="view hidden"><h2 style="margin-top:0">🧾 Alle Buchungen</h2><div class="card" id="txList"></div></section>
+
+<section id="v-goals" class="view hidden"><h2 style="margin-top:0">🎯 Sparziele</h2><div class="sub" id="goalTotal" style="margin-bottom:8px"></div><div id="goalList"></div><button class="primary" id="newGoal" style="width:100%;margin-top:12px">＋ Neues Sparziel</button></section>
+</main>
+
+<button class="primary fab" id="fab" aria-label="Neue Buchung">＋</button>
+<nav><button data-v="home" class="on"><span>🏠</span>Übersicht</button><button data-v="tx"><span>🧾</span>Buchungen</button><button data-v="goals"><span>🎯</span>Sparziele</button></nav>
+
+<dialog id="txDlg"><h2 id="txTitle" style="margin-top:0">Neue Buchung</h2>
+<div class="seg"><button id="tOut" class="on">⬇️ Ausgabe</button><button id="tIn">⬆️ Einnahme</button></div>
+<label>Betrag (€)</label><input id="txAmt" inputmode="decimal" placeholder="0,00">
+<label>Kategorie</label><div class="cats" id="txCats"></div>
+<div class="row2"><div><label>Datum</label><input id="txDate" type="date"></div><div><label>Notiz</label><input id="txNote" placeholder="optional" autocomplete="off"></div></div>
+<div class="actions"><button id="txCancel">Abbrechen</button><button id="txDel" class="danger hidden">Löschen</button><button id="txSave" class="primary">Speichern</button></div></dialog>
+
+<dialog id="goalDlg"><h2 id="gTitle" style="margin-top:0">Neues Sparziel</h2>
+<label>Name</label><input id="gName" placeholder="z. B. Urlaub" autocomplete="off">
+<label>Emoji</label><input id="gEmoji" maxlength="4" value="🎯"><div class="emo" id="gEmos"></div>
+<div class="row2"><div><label>Zielbetrag (€)</label><input id="gTarget" inputmode="decimal" placeholder="1000"></div><div><label>Schon gespart (€)</label><input id="gSaved" inputmode="decimal" placeholder="0"></div></div>
+<label>Bis wann? (optional)</label><input id="gDate" type="date">
+<div class="actions"><button id="gCancel">Abbrechen</button><button id="gDel" class="danger hidden">Löschen</button><button id="gSave" class="primary">Speichern</button></div></dialog>
+
+<dialog id="setDlg"><h2 style="margin-top:0">Einstellungen</h2><label>Daten sichern oder wiederherstellen</label>
+<button id="exp" style="width:100%;margin-bottom:8px">Daten exportieren</button><button id="imp" style="width:100%">Daten importieren</button><input id="impFile" type="file" accept="application/json" hidden>
+<label>Alles zurücksetzen</label><button id="wipe" class="danger" style="width:100%">Alle Daten löschen</button>
+<div class="actions"><button class="primary" id="setClose">Fertig</button></div></dialog>
+
+<script>
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const KEY='finanz-v1',uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6),pad=n=>String(n).padStart(2,'0');
+let ok=true;const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){ok=false;return null}};
+const norm=d=>{d=d&&typeof d==='object'?d:{};d.tx=(Array.isArray(d.tx)?d.tx:[]).filter(t=>t&&t.date&&t.amt>0);d.goals=Array.isArray(d.goals)?d.goals:[];return d};
+let D=norm(load());const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(D));ok=true}catch(e){ok=false}};
+const OUT=[['🛒','Lebensmittel'],['🏠','Wohnen'],['🚗','Mobilität'],['🍔','Essen gehen'],['🎉','Freizeit'],['🛍️','Shopping'],['💊','Gesundheit'],['📱','Abos'],['✈️','Reisen'],['🎁','Geschenke'],['💡','Rechnungen'],['📦','Sonstiges']],
+IN=[['💼','Gehalt'],['🧑‍💻','Nebenjob'],['🎁','Geschenk'],['📈','Zinsen'],['💸','Erstattung'],['📦','Sonstiges']];
+const catOf=(t,n)=>(t==='in'?IN:OUT).find(c=>c[1]===n)||['📦',n];
+const eur=n=>(n||0).toLocaleString('de-DE',{style:'currency',currency:'EUR'}),num=v=>{const n=parseFloat(String(v).replace(',','.'));return isNaN(n)?0:n};
+const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()),today=()=>ymd(new Date());
+let M=today().slice(0,7),V='home';
+const sum=(l,t)=>l.filter(x=>x.type===t).reduce((a,x)=>a+x.amt,0),pct=g=>g.target>0?Math.min(100,Math.round(g.saved/g.target*100)):0;
+const long=d=>new Date(d+'T12:00:00').toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2400)}
+const row=t=>{const c=catOf(t.type,t.cat);return `<div class="item" data-tx="${t.id}"><div class="ico">${c[0]}</div><div class="grow"><b>${esc(t.cat)}</b><div class="sub">${esc(t.note||'')}</div></div><div class="amt ${t.type}">${t.type==='in'?'+':'−'}${eur(t.amt)}</div></div>`};
+function goalCard(g){const p=pct(g),left=Math.max(0,g.target-g.saved);let need='';if(g.date&&left>0){const n=new Date(),e=new Date(g.date+'T12:00:00'),m=Math.max(1,(e.getFullYear()-n.getFullYear())*12+e.getMonth()-n.getMonth());need=`<div class="sub">Bis ${new Date(g.date+'T12:00:00').toLocaleDateString('de-DE',{day:'numeric',month:'long',year:'numeric'})}: ca. ${eur(left/m)} pro Monat</div>`}
+return `<div class="card" style="margin-bottom:12px;padding:14px 16px"><div class="item" style="border:0;padding:0"><div class="ico">${esc(g.emoji)}</div><div class="grow"><b>${esc(g.name)}</b><div class="sub">${eur(g.saved)} von ${eur(g.target)}</div></div><b>${p}%</b></div><div class="bar"><span style="width:${p}%"></span></div><div class="sub" style="margin-top:8px">${left>0?'Noch '+eur(left)+' bis zum Ziel':'Ziel erreicht 🎉'}</div>${need}<div class="actions" style="margin-top:12px"><button data-dep="${g.id}">＋ Einzahlen</button><button data-ge="${g.id}">Bearbeiten</button></div></div>`}
+function render(){
+$('warn').classList.toggle('hidden',ok);
+document.querySelectorAll('.mlabel').forEach(e=>e.textContent=new Date(M+'-01T12:00:00').toLocaleDateString('de-DE',{month:'long',year:'numeric'}));
+const tm=D.tx.filter(t=>t.date.startsWith(M)).sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id)),inc=sum(tm,'in'),out=sum(tm,'out');
+$('saldo').textContent=eur(inc-out);$('sIn').textContent=eur(inc);$('sOut').textContent=eur(out);
+const by={};tm.filter(t=>t.type==='out').forEach(t=>by[t.cat]=(by[t.cat]||0)+t.amt);
+$('byCat').innerHTML=Object.entries(by).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{const c=catOf('out',k);return `<div class="item"><div class="ico">${c[0]}</div><div class="grow"><div style="display:flex;justify-content:space-between"><b>${esc(k)}</b><span class="amt">${eur(v)}</span></div><div class="bar"><span style="width:${Math.round(v/out*100)}%"></span></div></div></div>`}).join('')||'<p class="sub">Noch keine Ausgaben in diesem Monat.</p>';
+$('recent').innerHTML=tm.slice(0,5).map(row).join('')||'<p class="sub">Tippe auf ＋, um deine erste Buchung einzutragen.</p>';
+let h='',last='';tm.forEach(t=>{if(t.date!==last){last=t.date;h+=`<div class="day">${long(t.date)}</div>`}h+=row(t)});$('txList').innerHTML=h||'<p class="sub">Keine Buchungen in diesem Monat.</p>';
+$('goalList').innerHTML=D.goals.map(goalCard).join('')||'<p class="sub">Noch kein Sparziel. Lege deins an, zum Beispiel für den Urlaub. ✈️</p>';
+$('goalTotal').textContent=D.goals.length?'Gespart gesamt: '+eur(D.goals.reduce((a,g)=>a+g.saved,0)):'';
+$('goalMini').innerHTML=D.goals.slice(0,2).map(g=>`<div class="item"><div class="ico">${esc(g.emoji)}</div><div class="grow"><div style="display:flex;justify-content:space-between"><b>${esc(g.name)}</b><span class="sub">${pct(g)}%</span></div><div class="bar"><span style="width:${pct(g)}%"></span></div></div></div>`).join('')||'<p class="sub">Noch kein Sparziel.</p>'}
+const save=()=>{persist();render()};
+function show(v){V=v;['home','tx','goals'].forEach(x=>{$('v-'+x).classList.toggle('hidden',x!==v)});document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('monthBar').classList.toggle('hidden',v==='goals');$('fab').textContent=v==='goals'?'🎯':'＋';window.scrollTo(0,0)}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.v));
+const shift=n=>{const d=new Date(M+'-01T12:00:00');d.setMonth(d.getMonth()+n);M=ymd(d).slice(0,7);render()};$('prev').onclick=()=>shift(-1);$('next').onclick=()=>shift(1);
+// Buchung
+const T={type:'out',cat:'Lebensmittel',id:''};
+function drawCats(){$('txCats').innerHTML=(T.type==='in'?IN:OUT).map(c=>`<button type="button" data-c="${esc(c[1])}" class="${c[1]===T.cat?'on':''}"><span>${c[0]}</span>${esc(c[1])}</button>`).join('');$('tOut').classList.toggle('on',T.type==='out');$('tIn').classList.toggle('on',T.type==='in')}
+function openTx(t){T.id=t?.id||'';T.type=t?.type||'out';T.cat=t?.cat||(T.type==='in'?IN:OUT)[0][1];$('txTitle').textContent=t?'Buchung bearbeiten':'Neue Buchung';$('txAmt').value=t?String(t.amt).replace('.',','):'';$('txDate').value=t?.date||(today().startsWith(M)?today():M+'-01');$('txNote').value=t?.note||'';$('txDel').classList.toggle('hidden',!t);drawCats();$('txDlg').showModal()}
+$('tOut').onclick=()=>{T.type='out';T.cat=OUT[0][1];drawCats()};$('tIn').onclick=()=>{T.type='in';T.cat=IN[0][1];drawCats()};
+$('txCats').onclick=e=>{const b=e.target.closest('[data-c]');if(b){T.cat=b.dataset.c;drawCats()}};
+$('txCancel').onclick=()=>$('txDlg').close();
+$('txSave').onclick=()=>{const amt=num($('txAmt').value);if(!(amt>0)){toast('Bitte einen Betrag eingeben.');return}const t={id:T.id||uid(),type:T.type,amt:Math.round(amt*100)/100,cat:T.cat,date:$('txDate').value||today(),note:$('txNote').value.trim()};const i=D.tx.findIndex(x=>x.id===t.id);if(i<0)D.tx.push(t);else D.tx[i]=t;M=t.date.slice(0,7);$('txDlg').close();save()};
+$('txDel').onclick=()=>{if(confirm('Buchung löschen?')){D.tx=D.tx.filter(x=>x.id!==T.id);$('txDlg').close();save()}};
+// Sparziele
+let GID='';const EM=['🎯','✈️','🏖️','🏠','🚗','💻','🎁','🛟','💍','🎓'];
+$('gEmos').innerHTML=EM.map(e=>`<button type="button">${e}</button>`).join('');$('gEmos').onclick=e=>{const b=e.target.closest('button');if(b)$('gEmoji').value=b.textContent};
+function openGoal(g){GID=g?.id||'';$('gTitle').textContent=g?'Sparziel bearbeiten':'Neues Sparziel';$('gName').value=g?.name||'';$('gEmoji').value=g?.emoji||'🎯';$('gTarget').value=g?String(g.target).replace('.',','):'';$('gSaved').value=g?String(g.saved).replace('.',','):'';$('gDate').value=g?.date||'';$('gDel').classList.toggle('hidden',!g);$('goalDlg').showModal()}
+$('newGoal').onclick=()=>openGoal();$('gCancel').onclick=()=>$('goalDlg').close();
+$('gSave').onclick=()=>{const name=$('gName').value.trim(),target=num($('gTarget').value);if(!name||!(target>0)){toast('Bitte Name und Zielbetrag eingeben.');return}const g={id:GID||uid(),name,emoji:$('gEmoji').value.trim()||'🎯',target,saved:Math.max(0,num($('gSaved').value)),date:$('gDate').value};const i=D.goals.findIndex(x=>x.id===g.id);if(i<0)D.goals.push(g);else D.goals[i]=g;$('goalDlg').close();save()};
+$('gDel').onclick=()=>{if(confirm('Sparziel löschen?')){D.goals=D.goals.filter(x=>x.id!==GID);$('goalDlg').close();save()}};
+$('fab').onclick=()=>V==='goals'?openGoal():openTx();
+document.addEventListener('click',e=>{const a=e.target.closest('[data-tx]'),b=e.target.closest('[data-dep]'),c=e.target.closest('[data-ge]');
+if(a)openTx(D.tx.find(x=>x.id===a.dataset.tx));
+else if(c)openGoal(D.goals.find(x=>x.id===c.dataset.ge));
+else if(b){const g=D.goals.find(x=>x.id===b.dataset.dep),v=num(prompt('Wie viel möchtest du einzahlen? (Minus zum Abheben)','')||0);if(g&&v){const was=g.saved<g.target;g.saved=Math.max(0,Math.round((g.saved+v)*100)/100);save();if(was&&g.saved>=g.target)toast('Ziel erreicht! 🎉')}}});
+// Einstellungen
+$('gear').onclick=()=>$('setDlg').showModal();$('setClose').onclick=()=>$('setDlg').close();
+$('exp').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(D,null,1)],{type:'application/json'}));a.download='finanzen-sicherung-'+today()+'.json';a.click();$('setDlg').close()};
+$('imp').onclick=()=>$('impFile').click();
+$('impFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=norm(JSON.parse(await f.text()));if(confirm('Aktuelle Daten durch die Sicherung ersetzen?')){D=d;$('setDlg').close();save();toast('Daten importiert ✓')}}catch(err){alert('Die Datei konnte nicht gelesen werden.')}e.target.value=''};
+$('wipe').onclick=()=>{if(confirm('Wirklich alle Daten löschen?')){D=norm({});$('setDlg').close();save()}};
+render();
+</script>
+<script>if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))</script>
+</body></html>
